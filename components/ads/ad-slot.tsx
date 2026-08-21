@@ -1,33 +1,31 @@
 import { cn } from "@/lib/utils";
-import type { AdPosition } from "@/types/advertisement";
-
-const sizeByPosition: Record<AdPosition, string> = {
-  HEADER: "h-[60px] w-full max-w-[728px]",
-  TOP_BANNER: "h-[90px] w-full",
-  SIDEBAR: "h-[250px] w-full max-w-[300px]",
-  ARTICLE_TOP: "h-[90px] w-full",
-  ARTICLE_MIDDLE: "h-[250px] w-full",
-  ARTICLE_BOTTOM: "h-[90px] w-full",
-  FOOTER: "h-[90px] w-full",
-};
+import { serverFetch } from "@/lib/server-fetch";
+import { demoAds } from "@/lib/mock-data/ads";
+import { AdBanner } from "./ad-banner";
+import type { AdPosition, Advertisement } from "@/types/advertisement";
 
 /**
- * Placeholder ad slot. In production this renders whatever creative the
- * NestJS-backed ad service returns for `position`; until then it shows a
- * clearly-labeled placeholder so layout/spacing can be reviewed.
+ * Renders the active creative for a placement.
+ * Falls back to polished local demo ads when the API has nothing active.
  */
-export function AdSlot({ position, className }: { position: AdPosition; className?: string }) {
+export async function AdSlot({
+  position,
+  className,
+}: {
+  position: AdPosition;
+  className?: string;
+}) {
+  const remote = await serverFetch<Advertisement>(
+    "/advertisements/active",
+    { position },
+    { revalidate: 60 },
+  );
+
+  const ad = remote ?? demoAds[position];
+
   return (
-    <div
-      className={cn(
-        "mx-auto flex items-center justify-center rounded-sm border border-dashed border-border-strong bg-muted text-xs font-medium text-foreground-muted",
-        sizeByPosition[position],
-        className
-      )}
-      role="complementary"
-      aria-label="Advertisement"
-    >
-      Advertisement · {position.replace("_", " ").toLowerCase()}
+    <div className={cn(className)}>
+      <AdBanner ad={ad} />
     </div>
   );
 }

@@ -1,4 +1,10 @@
-import { Fraunces, Source_Serif_4, Public_Sans, Noto_Sans_Bengali } from "next/font/google";
+import {
+  Fraunces,
+  Source_Serif_4,
+  Public_Sans,
+  Noto_Sans_Bengali,
+  Noto_Serif_Bengali,
+} from "next/font/google";
 
 // Display face — used for the masthead and large headlines only. Restrained use.
 export const fraunces = Fraunces({
@@ -26,10 +32,18 @@ export const publicSans = Public_Sans({
   display: "swap",
 });
 
-// Bangla support — used whenever locale = bn, paired with Public Sans for UI.
+// Bangla UI / headlines — used whenever locale = bn.
 export const notoBengali = Noto_Sans_Bengali({
   subsets: ["bengali"],
   variable: "--font-noto-bengali",
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+// Bangla article body — paired with Source Serif for Latin glyphs.
+export const notoSerifBengali = Noto_Serif_Bengali({
+  subsets: ["bengali"],
+  variable: "--font-noto-serif-bengali",
   weight: ["400", "500", "600", "700"],
   display: "swap",
 });
@@ -39,4 +53,5 @@ export const fontVariables = [
   sourceSerif.variable,
   publicSans.variable,
   notoBengali.variable,
+  notoSerifBengali.variable,
 ].join(" ");

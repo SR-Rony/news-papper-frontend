@@ -1,5 +1,7 @@
 "use client";
 
+import { useLocale } from "@/providers/locale-provider";
+
 import * as React from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Plus, Search, Pencil, Trash2, Loader2 } from "lucide-react";
@@ -11,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { apiClient, ApiRequestError } from "@/lib/api-client";
+import { formatNumber } from "@/lib/utils";
 import type { Category } from "@/types/category";
 
 function CategoryFormDialog({ trigger, category, onSaved }: { trigger: React.ReactNode; category?: Category; onSaved: () => void }) {
@@ -67,6 +70,8 @@ function CategoryFormDialog({ trigger, category, onSaved }: { trigger: React.Rea
 }
 
 export default function DashboardCategoriesPage() {
+  const { t, locale } = useLocale();
+  const d = t.dashboard;
   const [categories, setCategories] = React.useState<Category[]>([]);
   const [query, setQuery] = React.useState("");
   const [loading, setLoading] = React.useState(true);
@@ -81,7 +86,11 @@ export default function DashboardCategoriesPage() {
     load();
   }, [load]);
 
-  const filtered = categories.filter((c) => c.name.toLowerCase().includes(query.toLowerCase()));
+  const filtered = categories.filter((c) => {
+    const name = locale === "en" ? c.nameEn || c.name : c.name;
+    const description = locale === "en" ? c.descriptionEn || c.description || "" : c.description || "";
+    return `${name} ${description}`.toLowerCase().includes(query.toLowerCase());
+  });
 
   const remove = async (id: string) => {
     try {
@@ -94,15 +103,24 @@ export default function DashboardCategoriesPage() {
 
   return (
     <>
-      <DashboardTopbar title="Categories" />
+      <DashboardTopbar title={d.categories} />
       <div className="p-4 lg:p-6">
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative w-full sm:max-w-xs">
             <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-foreground-muted" />
-            <Input placeholder="Search categories…" className="pl-8" value={query} onChange={(e) => setQuery(e.target.value)} />
+            <Input
+              placeholder={d.searchCategories}
+              className="pl-8"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
           </div>
           <CategoryFormDialog
-            trigger={<Button size="sm"><Plus className="size-4" /> New category</Button>}
+            trigger={
+              <Button size="sm">
+                <Plus className="size-4" /> {d.newCategory}
+              </Button>
+            }
             onSaved={load}
           />
         </div>
@@ -110,42 +128,68 @@ export default function DashboardCategoriesPage() {
         <DataTableShell>
           <thead className="bg-muted text-xs font-semibold uppercase tracking-wide text-foreground-muted">
             <tr>
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Description</th>
-              <th className="px-4 py-3">Articles</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3 text-right">Actions</th>
+              <th className="px-4 py-3">{d.colName}</th>
+              <th className="px-4 py-3">{d.colDescription}</th>
+              <th className="px-4 py-3">{d.colArticles}</th>
+              <th className="px-4 py-3">{d.colStatus}</th>
+              <th className="px-4 py-3 text-right">{d.colActions}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {loading ? (
-              <tr><td colSpan={5} className="px-4 py-10 text-center"><Loader2 className="mx-auto size-5 animate-spin text-foreground-muted" /></td></tr>
+              <tr>
+                <td colSpan={5} className="px-4 py-10 text-center">
+                  <Loader2 className="mx-auto size-5 animate-spin text-foreground-muted" />
+                </td>
+              </tr>
             ) : (
-              filtered.map((category) => (
-                <tr key={category.id} className="bg-surface">
-                  <td className="px-4 py-3 font-medium">{category.name}</td>
-                  <td className="max-w-xs truncate px-4 py-3 text-foreground-muted">{category.description}</td>
-                  <td className="px-4 py-3 text-foreground-muted">{category.articleCount}</td>
-                  <td className="px-4 py-3">
-                    <Badge variant={category.isActive ? "success" : "outline"}>{category.isActive ? "Active" : "Inactive"}</Badge>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex justify-end gap-1">
-                      <CategoryFormDialog
-                        category={category}
-                        onSaved={load}
-                        trigger={<Button variant="ghost" size="icon" aria-label="Edit"><Pencil className="size-4" /></Button>}
-                      />
-                      <ConfirmDeleteDialog
-                        trigger={<Button variant="ghost" size="icon" aria-label="Delete"><Trash2 className="size-4" /></Button>}
-                        title="Delete category?"
-                        description={`This will permanently remove "${category.name}".`}
-                        onConfirm={() => remove(category.id)}
-                      />
-                    </div>
-                  </td>
-                </tr>
-              ))
+              filtered.map((category) => {
+                const name =
+                  locale === "en" ? category.nameEn || category.name : category.name;
+                const description =
+                  locale === "en"
+                    ? category.descriptionEn || category.description
+                    : category.description;
+                return (
+                  <tr key={category.id} className="bg-surface">
+                    <td className="px-4 py-3 font-medium">{name}</td>
+                    <td className="max-w-xs truncate px-4 py-3 text-foreground-muted">
+                      {description}
+                    </td>
+                    <td className="px-4 py-3 text-foreground-muted">
+                      {formatNumber(category.articleCount ?? 0, locale)}
+                    </td>
+                    <td className="px-4 py-3">
+                      <Badge variant={category.isActive ? "success" : "outline"}>
+                        {category.isActive ? d.active : d.inactive}
+                      </Badge>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex justify-end gap-1">
+                        <CategoryFormDialog
+                          category={category}
+                          onSaved={load}
+                          trigger={
+                            <Button variant="ghost" size="icon" aria-label="Edit">
+                              <Pencil className="size-4" />
+                            </Button>
+                          }
+                        />
+                        <ConfirmDeleteDialog
+                          trigger={
+                            <Button variant="ghost" size="icon" aria-label="Delete">
+                              <Trash2 className="size-4" />
+                            </Button>
+                          }
+                          title="Delete category?"
+                          description={`This will permanently remove "${name}".`}
+                          onConfirm={() => remove(category.id)}
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </DataTableShell>

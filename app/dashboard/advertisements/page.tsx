@@ -9,9 +9,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { apiClient } from "@/lib/api-client";
 import { formatCompactNumber, formatDate } from "@/lib/utils";
+import { useLocale } from "@/providers/locale-provider";
 import type { Advertisement } from "@/types/advertisement";
 
 export default function DashboardAdvertisementsPage() {
+  const { t, locale } = useLocale();
+  const d = t.dashboard;
   const [ads, setAds] = React.useState<Advertisement[]>([]);
   const [loading, setLoading] = React.useState(true);
 
@@ -45,45 +48,65 @@ export default function DashboardAdvertisementsPage() {
 
   return (
     <>
-      <DashboardTopbar title="Advertisements" />
+      <DashboardTopbar title={d.advertisements} />
       <div className="p-4 lg:p-6">
         <div className="mb-4 flex justify-end">
-          <Button size="sm"><Plus className="size-4" /> New advertisement</Button>
+          <Button size="sm">
+            <Plus className="size-4" /> {d.newAdvertisement}
+          </Button>
         </div>
 
         <DataTableShell>
           <thead className="bg-muted text-xs font-semibold uppercase tracking-wide text-foreground-muted">
             <tr>
-              <th className="px-4 py-3">Campaign</th>
-              <th className="px-4 py-3">Position</th>
-              <th className="px-4 py-3">Impressions</th>
-              <th className="px-4 py-3">Clicks</th>
-              <th className="px-4 py-3">Ends</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3 text-right">Actions</th>
+              <th className="px-4 py-3">{d.colCampaign}</th>
+              <th className="px-4 py-3">{d.colPosition}</th>
+              <th className="px-4 py-3">{d.colImpressions}</th>
+              <th className="px-4 py-3">{d.colClicks}</th>
+              <th className="px-4 py-3">{d.colEnds}</th>
+              <th className="px-4 py-3">{d.colStatus}</th>
+              <th className="px-4 py-3 text-right">{d.colActions}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {loading ? (
-              <tr><td colSpan={7} className="px-4 py-10 text-center"><Loader2 className="mx-auto size-5 animate-spin text-foreground-muted" /></td></tr>
+              <tr>
+                <td colSpan={7} className="px-4 py-10 text-center">
+                  <Loader2 className="mx-auto size-5 animate-spin text-foreground-muted" />
+                </td>
+              </tr>
             ) : (
               ads.map((ad) => (
                 <tr key={ad.id} className="bg-surface">
                   <td className="max-w-[220px] truncate px-4 py-3 font-medium">{ad.name}</td>
                   <td className="px-4 py-3 text-foreground-muted">{ad.position.replace("_", " ")}</td>
-                  <td className="px-4 py-3 text-foreground-muted">{formatCompactNumber(ad.impressions)}</td>
-                  <td className="px-4 py-3 text-foreground-muted">{formatCompactNumber(ad.clicks)}</td>
-                  <td className="px-4 py-3 text-foreground-muted">{ad.endDate ? formatDate(ad.endDate) : "—"}</td>
+                  <td className="px-4 py-3 text-foreground-muted">
+                    {formatCompactNumber(ad.impressions, locale)}
+                  </td>
+                  <td className="px-4 py-3 text-foreground-muted">
+                    {formatCompactNumber(ad.clicks, locale)}
+                  </td>
+                  <td className="px-4 py-3 text-foreground-muted">
+                    {ad.endDate ? formatDate(ad.endDate, locale) : "—"}
+                  </td>
                   <td className="px-4 py-3">
                     <button onClick={() => toggleActive(ad)}>
-                      <Badge variant={ad.isActive ? "success" : "outline"}>{ad.isActive ? "Active" : "Paused"}</Badge>
+                      <Badge variant={ad.isActive ? "success" : "outline"}>
+                        {ad.isActive ? d.active : d.paused}
+                      </Badge>
                     </button>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex justify-end gap-1">
-                      <Button variant="ghost" size="icon" aria-label="Edit"><Pencil className="size-4" /></Button>
+                      <Button variant="ghost" size="icon" aria-label="Edit">
+                        <Pencil className="size-4" />
+                      </Button>
                       <ConfirmDeleteDialog
-                        trigger={<Button variant="ghost" size="icon" aria-label="Delete"><Trash2 className="size-4" /></Button>}
+                        trigger={
+                          <Button variant="ghost" size="icon" aria-label="Delete">
+                            <Trash2 className="size-4" />
+                          </Button>
+                        }
                         title="Delete advertisement?"
                         description={`This will permanently remove "${ad.name}".`}
                         onConfirm={() => remove(ad.id)}

@@ -4,8 +4,12 @@ import { serverFetch, serverFetchPaginated } from "@/lib/server-fetch";
 import { FeaturedNewsCard } from "@/components/news/featured-news-card";
 import { NewsCard } from "@/components/news/news-card";
 import { TrendingNewsCard } from "@/components/news/trending-news-card";
+import { CategoryPageHeader } from "@/components/category/category-page-header";
+import { LocalizedSectionHeader } from "@/components/home/localized-section-header";
 import { SidebarAd } from "@/components/ads/sidebar-ad";
 import { Separator } from "@/components/ui/separator";
+import { getServerLocale } from "@/lib/i18n/server-locale";
+import { localizeCategory } from "@/lib/i18n/localize";
 import type { Category } from "@/types/category";
 import type { ArticleListItem } from "@/types/article";
 
@@ -17,7 +21,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const category = await serverFetch<Category>(`/categories/${slug}`);
   if (!category) return { title: "Category not found" };
-  return { title: category.name, description: category.description, alternates: { canonical: `/category/${category.slug}` } };
+  const locale = await getServerLocale();
+  const c = localizeCategory(category, locale);
+  return {
+    title: c.name,
+    description: c.description,
+    alternates: { canonical: `/category/${category.slug}` },
+  };
 }
 
 export default async function CategoryPage({ params }: Props) {
@@ -36,10 +46,7 @@ export default async function CategoryPage({ params }: Props) {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:py-8">
-      <header className="mb-8 border-b-2 border-ink pb-4">
-        <h1 className="font-display text-3xl font-semibold sm:text-4xl">{category.name}</h1>
-        {category.description && <p className="mt-2 max-w-2xl text-foreground-muted">{category.description}</p>}
-      </header>
+      <CategoryPageHeader category={category} />
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_320px]">
         <div className="min-w-0">
@@ -63,7 +70,7 @@ export default async function CategoryPage({ params }: Props) {
 
         <aside className="space-y-10">
           <div>
-            <h2 className="mb-4 border-b-2 border-ink pb-2 font-display text-xl font-semibold">Trending now</h2>
+            <LocalizedSectionHeader titleKey="trending" href="/trending" />
             {trending.map((a, i) => (
               <TrendingNewsCard key={a.id} article={a} rank={i + 1} />
             ))}

@@ -2,15 +2,17 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { serverFetch, serverFetchPaginated } from "@/lib/server-fetch";
 import { ArticleHeader } from "@/components/article/article-header";
-import { ArticleContent } from "@/components/article/article-content";
-import { ArticleTags } from "@/components/article/article-tags";
+import { LocalizedArticleBody } from "@/components/article/localized-article-body";
 import { ReactionBar } from "@/components/article/reaction-bar";
 import { RelatedArticles } from "@/components/article/related-articles";
 import { CommentsSection } from "@/components/comments/comments-section";
 import { AdSlot } from "@/components/ads/ad-slot";
 import { SidebarAd } from "@/components/ads/sidebar-ad";
 import { TrendingNewsCard } from "@/components/news/trending-news-card";
+import { LocalizedSectionHeader } from "@/components/home/localized-section-header";
 import { Separator } from "@/components/ui/separator";
+import { getServerLocale } from "@/lib/i18n/server-locale";
+import { localizeArticle } from "@/lib/i18n/localize";
 import type { Article, ArticleListItem } from "@/types/article";
 import type { Comment } from "@/types/comment";
 
@@ -26,19 +28,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const article = await getArticle(slug);
   if (!article) return { title: "Article not found" };
+  const locale = await getServerLocale();
+  const a = localizeArticle(article, locale);
   return {
-    title: article.title,
-    description: article.excerpt,
+    title: a.title,
+    description: a.excerpt,
     openGraph: {
       type: "article",
-      title: article.title,
-      description: article.excerpt,
-      images: [article.coverImageUrl],
-      publishedTime: article.publishedAt,
-      authors: [article.author.name],
+      title: a.title,
+      description: a.excerpt,
+      images: [a.coverImageUrl],
+      publishedTime: a.publishedAt,
+      authors: [a.author.name],
     },
-    twitter: { card: "summary_large_image", title: article.title, description: article.excerpt, images: [article.coverImageUrl] },
-    alternates: { canonical: `/news/${article.slug}` },
+    twitter: { card: "summary_large_image", title: a.title, description: a.excerpt, images: [a.coverImageUrl] },
+    alternates: { canonical: `/news/${a.slug}` },
   };
 }
 
@@ -62,16 +66,18 @@ export default async function ArticlePage({ params }: Props) {
     };
   }
   const comments = (rawComments ?? []).map(normalizeComment);
+  const locale = await getServerLocale();
+  const localized = localizeArticle(article, locale);
 
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
-    headline: article.title,
-    description: article.excerpt,
-    image: [article.coverImageUrl],
-    datePublished: article.publishedAt,
-    dateModified: article.updatedAt,
-    author: [{ "@type": "Person", name: article.author.name }],
+    headline: localized.title,
+    description: localized.excerpt,
+    image: [localized.coverImageUrl],
+    datePublished: localized.publishedAt,
+    dateModified: localized.updatedAt,
+    author: [{ "@type": "Person", name: localized.author.name }],
   };
 
   return (
@@ -83,20 +89,19 @@ export default async function ArticlePage({ params }: Props) {
         <article className="min-w-0 max-w-[720px]">
           <ArticleHeader article={article} />
           <AdSlot position="ARTICLE_TOP" className="mb-8" />
-          <ArticleContent html={article.content} />
-          <ArticleTags tags={article.tags} />
+          <LocalizedArticleBody article={article} />
           <ReactionBar
             articleId={article.id}
             initialCounts={{ LIKE: article.reactionCount, LOVE: Math.round(article.reactionCount * 0.4), INSIGHTFUL: Math.round(article.reactionCount * 0.2) }}
           />
           <AdSlot position="ARTICLE_BOTTOM" className="mb-4" />
-          <RelatedArticles articles={article.related} />
+          <RelatedArticles articles={article.related ?? []} />
           <CommentsSection articleId={article.id} initialComments={comments} />
         </article>
 
         <aside className="space-y-10">
           <div>
-            <h2 className="mb-4 border-b-2 border-ink pb-2 font-display text-xl font-semibold">Trending now</h2>
+            <LocalizedSectionHeader titleKey="trending" href="/trending" />
             {trending.map((a, i) => (
               <TrendingNewsCard key={a.id} article={a} rank={i + 1} />
             ))}

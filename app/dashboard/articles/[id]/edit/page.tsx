@@ -1,5 +1,7 @@
 "use client";
 
+import { useLocale } from "@/providers/locale-provider";
+
 import * as React from "react";
 import { useParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -9,6 +11,7 @@ import { apiClient } from "@/lib/api-client";
 import type { Article } from "@/types/article";
 
 export default function EditArticlePage() {
+  const { t } = useLocale();
   const { id } = useParams<{ id: string }>();
   const [article, setArticle] = React.useState<Article | null>(null);
   const [notFound, setNotFound] = React.useState(false);
@@ -22,7 +25,7 @@ export default function EditArticlePage() {
 
   return (
     <>
-      <DashboardTopbar title="Edit article" />
+      <DashboardTopbar title={t.dashboard.editArticle} />
       <div className="p-4 lg:p-6">
         {notFound ? (
           <p className="text-foreground-muted">Article not found.</p>

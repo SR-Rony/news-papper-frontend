@@ -1,5 +1,7 @@
 "use client";
 
+import { useLocale } from "@/providers/locale-provider";
+
 import * as React from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Search, Upload, Copy, Trash2, Check, Loader2 } from "lucide-react";
@@ -71,6 +73,7 @@ function AddMediaDialog({ onAdded }: { onAdded: () => void }) {
 }
 
 export default function DashboardMediaPage() {
+  const { t } = useLocale();
   const [items, setItems] = React.useState<MediaItem[]>([]);
   const [query, setQuery] = React.useState("");
   const [copiedId, setCopiedId] = React.useState<string | null>(null);
@@ -105,7 +108,7 @@ export default function DashboardMediaPage() {
 
   return (
     <>
-      <DashboardTopbar title="Media library" />
+      <DashboardTopbar title={t.dashboard.mediaLibrary} />
       <div className="p-4 lg:p-6">
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative w-full sm:max-w-xs">

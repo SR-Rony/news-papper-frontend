@@ -4,7 +4,8 @@ import { CompactNewsCard } from "@/components/news/compact-news-card";
 import { HorizontalNewsCard } from "@/components/news/horizontal-news-card";
 import { TrendingNewsCard } from "@/components/news/trending-news-card";
 import { VideoNewsCard } from "@/components/news/video-news-card";
-import { SectionHeader } from "@/components/home/section-header";
+import { LocalizedSectionHeader } from "@/components/home/localized-section-header";
+import { CategorySectionHeader } from "@/components/home/category-section-header";
 import { NewsletterSection } from "@/components/home/newsletter-section";
 import { AdSlot } from "@/components/ads/ad-slot";
 import { SidebarAd } from "@/components/ads/sidebar-ad";
@@ -32,7 +33,9 @@ export default async function HomePage() {
   const [lead, ...secondaryFeatured] = featured;
 
   const categoryArticles = await Promise.all(
-    sections.map((category) => serverFetchPaginated<ArticleListItem>("/articles", { category: category.slug, limit: 4 })),
+    sections.map((category) =>
+      serverFetchPaginated<ArticleListItem>("/articles", { category: category.slug, limit: 4 }),
+    ),
   );
 
   return (
@@ -56,7 +59,7 @@ export default async function HomePage() {
         <div className="min-w-0">
           {latest.length > 0 && (
             <section className="mb-12">
-              <SectionHeader title="Latest news" href="/category/bangladesh" />
+              <LocalizedSectionHeader titleKey="latest" href="/category/bangladesh" />
               <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
                 {latest.map((article, i) => (
                   <NewsCard key={article.id} article={article} priority={i < 2} />
@@ -70,7 +73,7 @@ export default async function HomePage() {
             if (items.length === 0) return null;
             return (
               <section key={category.id} className="mb-12">
-                <SectionHeader title={category.name} href={`/category/${category.slug}`} />
+                <CategorySectionHeader category={category} />
                 <div className="divide-y divide-border">
                   {items.map((article) => (
                     <HorizontalNewsCard key={article.id} article={article} />
@@ -82,7 +85,7 @@ export default async function HomePage() {
           })}
 
           <section className="mb-12">
-            <SectionHeader title="Video news" href="/videos" />
+            <LocalizedSectionHeader titleKey="videoNews" href="/videos" />
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {mockVideos.slice(0, 3).map((video) => (
                 <VideoNewsCard key={video.id} video={video} />
@@ -96,7 +99,7 @@ export default async function HomePage() {
         <aside className="space-y-10">
           {trending.length > 0 && (
             <div>
-              <SectionHeader title="Trending now" href="/trending" />
+              <LocalizedSectionHeader titleKey="trending" href="/trending" />
               <div>
                 {trending.map((article, i) => (
                   <TrendingNewsCard key={article.id} article={article} rank={i + 1} />

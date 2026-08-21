@@ -5,7 +5,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <DashboardGuard>
       <div className="flex min-h-screen">
-        <aside className="hidden w-64 shrink-0 lg:block">
+        <aside className="hidden w-64 shrink-0 bg-sidebar lg:block">
           <div className="fixed h-screen w-64">
             <DashboardSidebar />
           </div>

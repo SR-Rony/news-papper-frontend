@@ -1,5 +1,7 @@
 "use client";
 
+import { useLocale } from "@/providers/locale-provider";
+
 import * as React from "react";
 import * as Tabs from "@radix-ui/react-tabs";
 import { Save } from "lucide-react";
@@ -13,9 +15,10 @@ import { siteConfig } from "@/config/site";
 const tabTriggerClass = "px-4 py-2 text-sm font-semibold text-foreground-muted data-[state=active]:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-signal -mb-px";
 
 export default function DashboardSettingsPage() {
+  const { t, locale } = useLocale();
   return (
     <>
-      <DashboardTopbar title="Settings" />
+      <DashboardTopbar title={t.dashboard.settings} />
       <div className="p-4 lg:p-6">
         <Tabs.Root defaultValue="general">
           <Tabs.List className="mb-6 flex border-b border-border">
@@ -54,9 +57,16 @@ export default function DashboardSettingsPage() {
 
           <Tabs.Content value="locales" className="max-w-lg space-y-4">
             <p className="text-sm text-foreground-muted">
-              Enabled locales: <strong>English (en)</strong> and <strong>বাংলা (bn)</strong>. Readers can switch
-              language from the site header; new locales can be added in <code>lib/i18n/dictionary.ts</code>.
+              {locale === "en"
+                ? "Enabled locales: Bangla (bn) as default and English (en). Use the EN / বাং control in the header to switch. Add more locales in lib/i18n/dictionary.ts."
+                : "সক্রিয় ভাষা: বাংলা (bn) ডিফল্ট এবং English (en)। হেডারের EN / বাং বাটন দিয়ে পরিবর্তন করুন। নতুন ভাষা যোগ করতে lib/i18n/dictionary.ts ব্যবহার করুন।"}
             </p>
+            <div className="flex items-center gap-3 rounded-md border border-border p-4">
+              <span className="text-sm font-medium">
+                {locale === "en" ? "Current language" : "বর্তমান ভাষা"}:
+              </span>
+              <strong>{locale === "en" ? "English" : "বাংলা"}</strong>
+            </div>
           </Tabs.Content>
         </Tabs.Root>
       </div>

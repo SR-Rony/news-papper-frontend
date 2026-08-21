@@ -41,6 +41,14 @@
   --muted: #f1efe9;
   --muted-foreground: var(--steel);
   --ring: var(--accent);
+
+  /* Sidebar — light */
+  --sidebar: #ffffff;
+  --sidebar-foreground: var(--ink);
+  --sidebar-muted: var(--steel);
+  --sidebar-hover: #f1efe9;
+  --sidebar-active: #eaedf9;
+  --sidebar-border: var(--rule);
 }
 
 .dark {
@@ -75,6 +83,14 @@
   --muted: #1e2024;
   --muted-foreground: var(--steel);
   --ring: var(--accent);
+
+  /* Sidebar — dark */
+  --sidebar: #1a1c20;
+  --sidebar-foreground: #f3f0e8;
+  --sidebar-muted: rgba(243, 240, 232, 0.55);
+  --sidebar-hover: rgba(255, 255, 255, 0.08);
+  --sidebar-active: rgba(255, 255, 255, 0.14);
+  --sidebar-border: var(--rule);
 }
 
 @theme inline {
@@ -99,11 +115,20 @@
   --color-accent-soft: var(--accent-soft);
   --color-success: var(--success);
   --color-warning: var(--warning);
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-muted: var(--sidebar-muted);
+  --color-sidebar-hover: var(--sidebar-hover);
+  --color-sidebar-active: var(--sidebar-active);
+  --color-sidebar-border: var(--sidebar-border);
 
   --font-display: var(--font-fraunces), Georgia, serif;
   --font-serif: var(--font-source-serif), Georgia, serif;
   --font-sans: var(--font-public-sans), "Segoe UI", sans-serif;
   --font-bengali: var(--font-noto-bengali), var(--font-public-sans), sans-serif;
+  --font-bengali-serif: var(--font-noto-serif-bengali), var(--font-source-serif), Georgia, serif;
 
   --radius-sm: 0.125rem;
   --radius-md: 0.25rem;
@@ -147,9 +172,18 @@ body {
   font-family: var(--font-sans);
 }
 
-[lang="bn"] body,
+/* Bangla locale — native faces for UI, headlines, and long-form reading */
+html[lang="bn"],
+html[data-locale="bn"] {
+  --font-display: var(--font-noto-bengali), var(--font-fraunces), Georgia, serif;
+  --font-serif: var(--font-bengali-serif);
+  --font-sans: var(--font-bengali);
+}
+
+html[lang="bn"] body,
+html[data-locale="bn"] body,
 .font-bengali {
-  font-family: var(--font-bengali);
+  font-family: var(--font-sans);
 }
 
 /* Editorial article typography */

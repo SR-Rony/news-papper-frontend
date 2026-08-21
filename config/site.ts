@@ -2,11 +2,11 @@ export const siteConfig = {
   name: "The Daily Column",
   shortName: "Column",
   description:
-    "Independent, editorially-led coverage of Bangladesh and the world — politics, business, technology, sport, and culture.",
+    "বাংলাদেশ ও বিশ্বের স্বাধীন, সম্পাদকীয় নেতৃত্বাধীন সংবাদ — রাজনীতি, ব্যবসা, প্রযুক্তি, খেলা ও সংস্কৃতি।",
   url: "https://example-daily-column.com",
   ogImage: "/images/og-default.jpg",
-  locales: ["en", "bn"] as const,
-  defaultLocale: "en" as const,
+  locales: ["bn", "en"] as const,
+  defaultLocale: "bn" as const,
   social: {
     twitter: "https://twitter.com/dailycolumn",
     facebook: "https://facebook.com/dailycolumn",

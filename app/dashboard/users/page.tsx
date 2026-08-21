@@ -10,12 +10,15 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { DashboardPagination } from "@/components/dashboard/pagination";
 import { apiClient } from "@/lib/api-client";
 import { formatDate, cn } from "@/lib/utils";
+import { useLocale } from "@/providers/locale-provider";
 import type { User, UserRole } from "@/types/user";
 import type { PaginationMeta } from "@/types/api";
 
 const roles: (UserRole | "ALL")[] = ["ALL", "SUPER_ADMIN", "ADMIN", "EDITOR", "REPORTER", "USER"];
 
 export default function DashboardUsersPage() {
+  const { t, locale } = useLocale();
+  const d = t.dashboard;
   const [users, setUsers] = React.useState<User[]>([]);
   const [meta, setMeta] = React.useState<PaginationMeta | null>(null);
   const [query, setQuery] = React.useState("");
@@ -25,7 +28,11 @@ export default function DashboardUsersPage() {
   const load = React.useCallback(async () => {
     setLoading(true);
     try {
-      const result = await apiClient.getPaginated<User>("/users", { page, limit: 10, search: query || undefined });
+      const result = await apiClient.getPaginated<User>("/users", {
+        page,
+        limit: 10,
+        search: query || undefined,
+      });
       setUsers(result.data);
       setMeta(result.meta);
     } finally {
@@ -58,26 +65,38 @@ export default function DashboardUsersPage() {
 
   return (
     <>
-      <DashboardTopbar title="Users" />
+      <DashboardTopbar title={d.users} />
       <div className="p-4 lg:p-6">
-        <div className="mb-4 relative w-full sm:max-w-xs">
+        <div className="relative mb-4 w-full sm:max-w-xs">
           <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-foreground-muted" />
-          <Input placeholder="Search users…" className="pl-8" value={query} onChange={(e) => { setQuery(e.target.value); setPage(1); }} />
+          <Input
+            placeholder={d.searchUsers}
+            className="pl-8"
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setPage(1);
+            }}
+          />
         </div>
 
         <DataTableShell>
           <thead className="bg-muted text-xs font-semibold uppercase tracking-wide text-foreground-muted">
             <tr>
-              <th className="px-4 py-3">User</th>
-              <th className="px-4 py-3">Role</th>
-              <th className="px-4 py-3">Joined</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3 text-right">Actions</th>
+              <th className="px-4 py-3">{d.colUser}</th>
+              <th className="px-4 py-3">{d.colRole}</th>
+              <th className="px-4 py-3">{d.colJoined}</th>
+              <th className="px-4 py-3">{d.colStatus}</th>
+              <th className="px-4 py-3 text-right">{d.colActions}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {loading ? (
-              <tr><td colSpan={5} className="px-4 py-10 text-center"><Loader2 className="mx-auto size-5 animate-spin text-foreground-muted" /></td></tr>
+              <tr>
+                <td colSpan={5} className="px-4 py-10 text-center">
+                  <Loader2 className="mx-auto size-5 animate-spin text-foreground-muted" />
+                </td>
+              </tr>
             ) : (
               users.map((user) => (
                 <tr key={user.id} className="bg-surface">
@@ -99,19 +118,28 @@ export default function DashboardUsersPage() {
                       onChange={(e) => changeRole(user, e.target.value as UserRole)}
                       className="rounded-sm border border-border-strong bg-surface px-2 py-1 text-xs"
                     >
-                      {roles.slice(1).map((r) => (<option key={r} value={r}>{r}</option>))}
+                      {roles.slice(1).map((r) => (
+                        <option key={r} value={r}>
+                          {r}
+                        </option>
+                      ))}
                     </select>
                   </td>
-                  <td className="px-4 py-3 text-foreground-muted">{formatDate(user.createdAt)}</td>
+                  <td className="px-4 py-3 text-foreground-muted">{formatDate(user.createdAt, locale)}</td>
                   <td className="px-4 py-3">
-                    <Badge variant={user.isActive ? "success" : "outline"}>{user.isActive ? "Active" : "Inactive"}</Badge>
+                    <Badge variant={user.isActive ? "success" : "outline"}>
+                      {user.isActive ? d.active : d.inactive}
+                    </Badge>
                   </td>
                   <td className="px-4 py-3 text-right">
                     <button
                       onClick={() => toggleActive(user)}
-                      className={cn("text-xs font-semibold hover:underline", user.isActive ? "text-destructive" : "text-success")}
+                      className={cn(
+                        "text-xs font-semibold hover:underline",
+                        user.isActive ? "text-destructive" : "text-success",
+                      )}
                     >
-                      {user.isActive ? "Deactivate" : "Activate"}
+                      {user.isActive ? d.deactivate : d.activate}
                     </button>
                   </td>
                 </tr>
@@ -120,7 +148,11 @@ export default function DashboardUsersPage() {
           </tbody>
         </DataTableShell>
         <div className="rounded-b-md border border-t-0 border-border bg-surface">
-          <DashboardPagination page={meta?.page ?? 1} totalPages={meta?.totalPages ?? 1} onPageChange={setPage} />
+          <DashboardPagination
+            page={meta?.page ?? 1}
+            totalPages={meta?.totalPages ?? 1}
+            onPageChange={setPage}
+          />
         </div>
       </div>
     </>

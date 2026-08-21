@@ -1,5 +1,7 @@
 "use client";
 
+import { useLocale } from "@/providers/locale-provider";
+
 import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -13,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { apiClient, ApiRequestError } from "@/lib/api-client";
 import { formatDate } from "@/lib/utils";
+import { categoryLabel } from "@/lib/i18n/dictionary";
 import type { Article } from "@/types/article";
 import type { Category } from "@/types/category";
 import type { PaginationMeta } from "@/types/api";
@@ -20,6 +23,7 @@ import type { PaginationMeta } from "@/types/api";
 const PAGE_SIZE = 8;
 
 export default function DashboardArticlesPage() {
+  const { t, locale } = useLocale();
   const [articles, setArticles] = React.useState<Article[]>([]);
   const [meta, setMeta] = React.useState<PaginationMeta | null>(null);
   const [categories, setCategories] = React.useState<Category[]>([]);
@@ -70,7 +74,7 @@ export default function DashboardArticlesPage() {
 
   return (
     <>
-      <DashboardTopbar title="Articles" />
+      <DashboardTopbar title={t.dashboard.articles} />
       <div className="p-4 lg:p-6">
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative w-full sm:max-w-xs">
@@ -129,20 +133,33 @@ export default function DashboardArticlesPage() {
             ) : articles.length === 0 ? (
               <tr><td colSpan={6} className="px-4 py-10 text-center text-foreground-muted">No articles match your filters.</td></tr>
             ) : (
-              articles.map((article) => (
+              articles.map((article) => {
+                const title = locale === "en" ? article.titleEn || article.title : article.title;
+                const categoryName = article.category
+                  ? categoryLabel(
+                      locale,
+                      article.category.slug,
+                      locale === "en" ? article.category.nameEn || article.category.name : article.category.name,
+                    )
+                  : "—";
+                const authorName =
+                  locale === "en"
+                    ? article.author?.nameEn || article.author?.name
+                    : article.author?.name;
+                return (
                 <tr key={article.id} className="bg-surface">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <div className="relative h-10 w-14 shrink-0 overflow-hidden rounded-sm bg-muted">
                         <Image src={article.coverImageUrl} alt="" fill sizes="56px" className="object-cover" />
                       </div>
-                      <span className="line-clamp-2 max-w-xs font-medium">{article.title}</span>
+                      <span className="line-clamp-2 max-w-xs font-medium">{title}</span>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-foreground-muted">{article.category?.name}</td>
-                  <td className="px-4 py-3 text-foreground-muted">{article.author?.name}</td>
+                  <td className="px-4 py-3 text-foreground-muted">{categoryName}</td>
+                  <td className="px-4 py-3 text-foreground-muted">{authorName ?? "—"}</td>
                   <td className="px-4 py-3"><ArticleStatusBadge status={article.status} /></td>
-                  <td className="px-4 py-3 text-foreground-muted">{article.publishedAt ? formatDate(article.publishedAt) : "—"}</td>
+                  <td className="px-4 py-3 text-foreground-muted">{article.publishedAt ? formatDate(article.publishedAt, locale) : "—"}</td>
                   <td className="px-4 py-3">
                     <div className="flex justify-end gap-1">
                       <Button variant="ghost" size="icon" asChild>
@@ -153,13 +170,14 @@ export default function DashboardArticlesPage() {
                       <ConfirmDeleteDialog
                         trigger={<Button variant="ghost" size="icon" aria-label="Delete"><Trash2 className="size-4" /></Button>}
                         title="Delete article?"
-                        description={`This will permanently remove "${article.title}". This action cannot be undone.`}
+                        description={`This will permanently remove "${title}". This action cannot be undone.`}
                         onConfirm={() => removeArticle(article.id)}
                       />
                     </div>
                   </td>
                 </tr>
-              ))
+                );
+              })
             )}
           </tbody>
         </DataTableShell>

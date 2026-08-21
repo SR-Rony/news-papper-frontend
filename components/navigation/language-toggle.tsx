@@ -2,18 +2,22 @@
 
 import { Button } from "@/components/ui/button";
 import { useLocale } from "@/providers/locale-provider";
+import { cn } from "@/lib/utils";
 
-export function LanguageToggle() {
-  const { locale, setLocale } = useLocale();
+export function LanguageToggle({ className }: { className?: string }) {
+  const { locale, setLocale, t } = useLocale();
+  const next = locale === "bn" ? "en" : "bn";
+
   return (
     <Button
-      variant="ghost"
+      variant="outline"
       size="sm"
-      className="font-bold"
-      onClick={() => setLocale(locale === "en" ? "bn" : "en")}
-      aria-label="Switch language"
+      className={cn("min-w-11 px-2.5 font-bold", className)}
+      onClick={() => setLocale(next)}
+      aria-label={t.common.switchLanguage}
+      title={t.common.switchLanguage}
     >
-      {locale === "en" ? "বাং" : "EN"}
+      {locale === "bn" ? "EN" : "বাং"}
     </Button>
   );
 }
