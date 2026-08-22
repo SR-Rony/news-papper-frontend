@@ -3,7 +3,7 @@ export const siteConfig = {
   shortName: "Column",
   description:
     "বাংলাদেশ ও বিশ্বের স্বাধীন, সম্পাদকীয় নেতৃত্বাধীন সংবাদ — রাজনীতি, ব্যবসা, প্রযুক্তি, খেলা ও সংস্কৃতি।",
-  url: "https://example-daily-column.com",
+  url: "https://newspaper.mhadnan.com",
   ogImage: "/images/og-default.jpg",
   locales: ["bn", "en"] as const,
   defaultLocale: "bn" as const,
