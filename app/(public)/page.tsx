@@ -11,23 +11,25 @@ import { AdSlot } from "@/components/ads/ad-slot";
 import { SidebarAd } from "@/components/ads/sidebar-ad";
 import { Separator } from "@/components/ui/separator";
 import { serverFetch, serverFetchPaginated } from "@/lib/server-fetch";
-import { mockVideos } from "@/lib/mock-data/videos";
 import type { ArticleListItem } from "@/types/article";
 import type { Category } from "@/types/category";
+import type { VideoNews } from "@/types/video";
 
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const [featuredResult, latestResult, trendingResult, categories] = await Promise.all([
+  const [featuredResult, latestResult, trendingResult, categories, videosResult] = await Promise.all([
     serverFetchPaginated<ArticleListItem>("/articles", { featured: "true", limit: 4 }),
     serverFetchPaginated<ArticleListItem>("/articles", { limit: 6 }),
     serverFetchPaginated<ArticleListItem>("/articles", { sort: "popular", limit: 5 }),
     serverFetch<Category[]>("/categories"),
+    serverFetchPaginated<VideoNews>("/videos", { limit: 3 }),
   ]);
 
   const featured = featuredResult.data ?? [];
   const latest = latestResult.data ?? [];
   const trending = trendingResult.data ?? [];
+  const videos = videosResult.data ?? [];
   const sections = (categories ?? []).slice(0, 4);
 
   const [lead, ...secondaryFeatured] = featured;
@@ -84,14 +86,16 @@ export default async function HomePage() {
             );
           })}
 
-          <section className="mb-12">
-            <LocalizedSectionHeader titleKey="videoNews" href="/videos" />
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {mockVideos.slice(0, 3).map((video) => (
-                <VideoNewsCard key={video.id} video={video} />
-              ))}
-            </div>
-          </section>
+          {videos.length > 0 && (
+            <section className="mb-12">
+              <LocalizedSectionHeader titleKey="videoNews" href="/videos" />
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {videos.map((video) => (
+                  <VideoNewsCard key={video.id} video={video} />
+                ))}
+              </div>
+            </section>
+          )}
 
           <NewsletterSection />
         </div>

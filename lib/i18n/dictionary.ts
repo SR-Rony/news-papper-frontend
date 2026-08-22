@@ -41,10 +41,13 @@ export const dictionaries = {
       views: "views",
       comments: "comments",
       relatedArticles: "Related articles",
+      relatedVideos: "Related videos",
+      videoNewsSubtitle: "The day's stories, in motion.",
       moreNews: "More news",
       loading: "Loading…",
       tryAgain: "Try again",
       noResults: "No results found",
+      videoUnavailable: "This video is temporarily unavailable.",
       newsletterTitle: "Never miss a headline",
       newsletterBody: "Get our top stories delivered to your inbox every morning.",
       newsletterSuccess: "You're subscribed. Welcome aboard.",
@@ -201,10 +204,13 @@ export const dictionaries = {
       views: "ভিউ",
       comments: "মন্তব্য",
       relatedArticles: "সম্পর্কিত সংবাদ",
+      relatedVideos: "সম্পর্কিত ভিডিও",
+      videoNewsSubtitle: "আজকের খবর, চলমান ছবিতে।",
       moreNews: "আরও সংবাদ",
       loading: "লোড হচ্ছে…",
       tryAgain: "আবার চেষ্টা করুন",
       noResults: "কোনো ফলাফল পাওয়া যায়নি",
+      videoUnavailable: "এই ভিডিওটি সাময়িকভাবে unavailable।",
       newsletterTitle: "কোনো শিরোনাম মিস করবেন না",
       newsletterBody: "প্রতিদিন সকালে আমাদের শীর্ষ সংবাদ পান আপনার ইনবক্সে।",
       newsletterSuccess: "সাবস্ক্রাইব হয়েছে। স্বাগতম।",
@@ -329,6 +335,10 @@ export const LOCALE_STORAGE_KEY = "locale";
 
 export function isLocale(value: string | null | undefined): value is Locale {
   return value === "en" || value === "bn";
+}
+
+export function getDictionary(locale: Locale): Dictionary {
+  return dictionaries[locale];
 }
 
 export function categoryLabel(locale: Locale, slug: string, fallback?: string): string {

@@ -30,8 +30,8 @@ export function VideoNewsCard({ video }: { video: VideoNews }) {
           className="object-cover opacity-90 transition-opacity group-hover:opacity-75"
         />
         <span className="absolute inset-0 flex items-center justify-center">
-          <span className="flex size-12 items-center justify-center rounded-full bg-white/90 text-ink transition-transform group-hover:scale-110">
-            <Play className="size-5 fill-current" />
+          <span className="flex size-12 items-center justify-center rounded-full bg-white text-neutral-900 shadow-lg ring-1 ring-black/15 transition-transform group-hover:scale-110">
+            <Play className="size-5 fill-neutral-900 stroke-none" />
           </span>
         </span>
         <span className="absolute bottom-2 right-2 rounded-sm bg-black/75 px-1.5 py-0.5 text-xs font-medium text-white">

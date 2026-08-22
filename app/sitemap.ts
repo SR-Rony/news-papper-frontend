@@ -4,6 +4,7 @@ import { serverFetch, serverFetchPaginated } from "@/lib/server-fetch";
 import type { ArticleListItem } from "@/types/article";
 import type { Category } from "@/types/category";
 import type { Author } from "@/types/author";
+import type { VideoNews } from "@/types/video";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = ["", "/search", "/trending", "/videos"].map((path) => ({
@@ -11,10 +12,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(),
   }));
 
-  const [articlesResult, categories, authors] = await Promise.all([
+  const [articlesResult, categories, authors, videosResult] = await Promise.all([
     serverFetchPaginated<ArticleListItem>("/articles", { limit: 200 }),
     serverFetch<Category[]>("/categories"),
     serverFetch<Author[]>("/authors"),
+    serverFetchPaginated<VideoNews>("/videos", { limit: 100 }),
   ]);
 
   const articleRoutes: MetadataRoute.Sitemap = (articlesResult.data ?? []).map((a) => ({
@@ -32,5 +34,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(),
   }));
 
-  return [...staticRoutes, ...articleRoutes, ...categoryRoutes, ...authorRoutes];
+  const videoRoutes: MetadataRoute.Sitemap = (videosResult.data ?? []).map((v) => ({
+    url: `${siteConfig.url}/videos/${v.slug}`,
+    lastModified: new Date(v.publishedAt),
+  }));
+
+  return [...staticRoutes, ...articleRoutes, ...categoryRoutes, ...authorRoutes, ...videoRoutes];
 }

@@ -46,7 +46,7 @@ const localeBootScript = `
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang={DEFAULT_LOCALE} className={fontVariables} suppressHydrationWarning data-scroll-behavior="smooth">
-      <body className="flex min-h-screen flex-col antialiased">
+      <body className="flex min-h-screen flex-col antialiased" suppressHydrationWarning>
         <Script id="locale-boot" strategy="beforeInteractive">
           {localeBootScript}
         </Script>

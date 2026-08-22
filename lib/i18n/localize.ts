@@ -66,6 +66,8 @@ export function localizeVideo(video: VideoNews, locale: Locale): VideoNews {
   return {
     ...video,
     title: pick(video.title, video.titleEn, locale),
+    description: pick(video.description, video.descriptionEn, locale, video.description ?? ""),
     category: localizeCategory(video.category, locale),
+    related: video.related?.map((item) => localizeVideo(item, locale)),
   };
 }
